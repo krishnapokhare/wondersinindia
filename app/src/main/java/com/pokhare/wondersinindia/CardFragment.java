@@ -3,12 +3,16 @@ package com.pokhare.wondersinindia;
 
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +20,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -27,6 +44,11 @@ public class CardFragment extends Fragment {
     RecyclerView MyRecyclerView;
     String Wonders[] = {"Chichen Itza","Christ the Redeemer","Great Wall of China","Machu Picchu","Petra","Taj Mahal","Colosseum"};
     int  Images[] = {R.drawable.chichen_itza_tour01,R.drawable.chris_the_redeemer,R.drawable.greatwallofchina,R.drawable.machupicchu,R.drawable.petra,R.drawable.tajmahal,R.drawable.colloseum};
+    DatabaseReference wondersOfIndiaDB;
+    private MyAdapter itemsAdapter;
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
+    private StorageReference imagesRef;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,8 +66,9 @@ public class CardFragment extends Fragment {
         MyRecyclerView.setHasFixedSize(true);
         LinearLayoutManager MyLayoutManager = new LinearLayoutManager(getActivity());
         MyLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        if (listitems.size() > 0 & MyRecyclerView != null) {
-            MyRecyclerView.setAdapter(new MyAdapter(listitems));
+        itemsAdapter=new MyAdapter(listitems);
+        if (MyRecyclerView != null) {
+            MyRecyclerView.setAdapter(itemsAdapter);
         }
         MyRecyclerView.setLayoutManager(MyLayoutManager);
 
@@ -75,13 +98,36 @@ public class CardFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(final MyViewHolder holder, int position) {
+        public void onBindViewHolder(final MyViewHolder holder, final int position) {
 
             holder.titleTextView.setText(list.get(position).getCardName());
-            holder.coverImageView.setImageResource(list.get(position).getImageResourceId());
-            holder.coverImageView.setTag(list.get(position).getImageResourceId());
+//            holder.coverImageView.setImageResource(list.get(position).getImageResourceId());
+//            holder.coverImageView.setTag(list.get(position).getImageResourceId());
             holder.likeImageView.setTag(R.drawable.ic_like);
+            final WonderModel model = list.get(position);
 
+
+            StorageReference imageRef = storageRef.child("images/india/"+model.imageResourceId);
+            final long ONE_MEGABYTE = 1024 * 1024;
+            final File localFile;
+            try {
+                localFile = File.createTempFile("Images", "bmp");
+
+                imageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                        Bitmap my_image = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                        holder.coverImageView.setImageBitmap(my_image);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -144,30 +190,41 @@ public class CardFragment extends Fragment {
                     shareIntent.putExtra(Intent.EXTRA_STREAM,imageUri);
                     shareIntent.setType("image/jpeg");
                     startActivity(Intent.createChooser(shareIntent, getResources().getText(R.string.send_to)));
-
-
-
                 }
             });
-
-
-
         }
     }
 
     public void initializeList() {
         listitems.clear();
+        wondersOfIndiaDB = FirebaseDatabase.getInstance().getReference("WondersOfIndia");
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
+        //imagesRef=storageRef.child("images/India");
+//        for(int i =0;i<7;i++){
+//            WonderModel item = new WonderModel();
+//            item.setCardName(Wonders[i]);
+//            item.setImageResourceId(Images[i]);
+//            item.setIsfav(0);
+//            item.setIsturned(0);
+//            wondersOfIndiaDB.child("places").child(item.getId()).setValue(item);
+//        }
+        wondersOfIndiaDB.child("places").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listitems.clear();
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    final WonderModel model=ds.getValue(WonderModel.class);
+                    listitems.add(model);
+                }
+                itemsAdapter.notifyDataSetChanged();
+            }
 
-        for(int i =0;i<7;i++){
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
+            }
+        });
 
-            WonderModel item = new WonderModel();
-            item.setCardName(Wonders[i]);
-            item.setImageResourceId(Images[i]);
-            item.setIsfav(0);
-            item.setIsturned(0);
-            listitems.add(item);
-
-        }
     }
 }

@@ -7,5 +7,5 @@
     <dimen name="icon_width">32dp</dimen>
     <dimen name="icon_padding">5dp</dimen>
     <dimen name="icon_height">32dp</dimen>
-    <dimen name="card_height">400dp</dimen>
+    <dimen name="card_height">300dp</dimen>
 </resources>
