@@ -3,13 +3,10 @@ package com.pokhare.wondersinindia;
 import java.util.UUID;
 
 public class WonderModel {
-    String id;
-    String cardName;
-    String imageResourceUrl;
-    String imageResourceId;
-    int isfav;
-    int isturned;
+    String id, cardName, imageResourceUrl, imageResourceId, shortDescription, longDescription, state, city;
+    int isfav, isturned;
     byte[] imageArray;
+    float latitude, longitude;
 
     public WonderModel() {
         this.id = UUID.randomUUID().toString();
@@ -78,5 +75,53 @@ public class WonderModel {
 
     public void setImageArray(byte[] imageArray) {
         this.imageArray = imageArray;
+    }
+
+    public float getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(float latitude) {
+        this.latitude = latitude;
+    }
+
+    public float getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(float longitude) {
+        this.longitude = longitude;
+    }
+
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+    }
+
+    public String getShortDescription() {
+        return shortDescription;
+    }
+
+    public String getLongDescription() {
+        return longDescription;
+    }
+
+    public void setLongDescription(String longDescription) {
+        this.longDescription = longDescription;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getState() {
+        return state;
     }
 }
