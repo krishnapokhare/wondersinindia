@@ -42,6 +42,24 @@ public class CardFragment extends Fragment {
     RecyclerView MyRecyclerView;
     DatabaseReference wondersOfIndiaDB;
     private CardsAdapter itemsAdapter;
+    OnCardClickListener mCallback;
+
+    public interface OnCardClickListener{
+        public void navigateToDetailsActivity(String cardId);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (OnCardClickListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement OnHeadlineSelectedListener");
+        }
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,6 +84,13 @@ public class CardFragment extends Fragment {
                         Uri.parse("google.navigation:q=" + String.valueOf(listitems.get(position).getLatitude()) + "," + listitems.get(position).getLongitude()));
                 startActivity(intent);
             }
+
+            @Override
+            public void detailsOnClick(View v, int position) {
+                mCallback.navigateToDetailsActivity(listitems.get(position).getId());
+            }
+
+
         }, getContext());
         if (MyRecyclerView != null) {
             MyRecyclerView.setAdapter(itemsAdapter);

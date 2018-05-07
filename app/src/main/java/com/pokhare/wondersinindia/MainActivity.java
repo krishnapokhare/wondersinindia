@@ -41,7 +41,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 public class MainActivity extends BaseActivity implements
-        View.OnClickListener {
+        View.OnClickListener,CardFragment.OnCardClickListener {
 
     private static final String TAG = "GoogleActivity";
     private static final int RC_SIGN_IN = 9001;
@@ -256,6 +256,18 @@ public class MainActivity extends BaseActivity implements
     private void HideFragment() {
         fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.hide(fragment);
+        fragmentTransaction.commit();
+    }
+
+    @Override
+    public void navigateToDetailsActivity(String cardId) {
+        CardDetailsFragment detailsFragment=new CardDetailsFragment();
+        Bundle args = new Bundle();
+        args.putString(CardDetailsFragment.CARD_DETAIL_ID, cardId);
+        detailsFragment.setArguments(args);
+        fragmentTransaction=fm.beginTransaction();
+        fragmentTransaction.replace(R.id.fragmentContainer,detailsFragment);
+        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
 }

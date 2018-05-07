@@ -64,6 +64,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardsViewHol
 
     public interface CardsAdapterListener{
         void directionsOnClick(View v, int position);
+        void detailsOnClick(View v, int position);
     }
 
     public class CardsViewHolder extends RecyclerView.ViewHolder {
@@ -121,6 +122,14 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardsViewHol
                 @Override
                 public void onClick(View v) {
                     cardsAdapterListener.directionsOnClick(v, getAdapterPosition());
+
+                }
+            });
+
+            coverImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    cardsAdapterListener.detailsOnClick(v,getAdapterPosition());
                 }
             });
         }
