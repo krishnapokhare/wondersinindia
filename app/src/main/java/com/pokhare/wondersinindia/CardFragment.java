@@ -76,14 +76,14 @@ public class CardFragment extends Fragment {
             @Override
             public void onRefresh() {
 
-                RefreshCards();
+                refreshCards();
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
         return view;
     }
 
-    private void RefreshCards() {
+    public void refreshCards() {
         wondersOfIndiaDB.child("places").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

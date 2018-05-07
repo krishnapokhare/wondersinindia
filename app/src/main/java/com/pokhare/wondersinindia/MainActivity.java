@@ -55,7 +55,7 @@ public class MainActivity extends BaseActivity implements
     private TextView mStatusTextView;
     private TextView mDetailTextView;
     FragmentManager fm;
-    Fragment fragment;
+    CardFragment fragment;
     private FragmentTransaction fragmentTransaction;
 
     @Override
@@ -81,7 +81,7 @@ public class MainActivity extends BaseActivity implements
         // [END initialize_auth]
 
         fm = getSupportFragmentManager();
-        fragment = fm.findFragmentById(R.id.fragmentContainer);
+        fragment = (CardFragment) fm.findFragmentById(R.id.fragmentContainer);
     }
 
     // [START on_start_check_user]
@@ -238,6 +238,9 @@ public class MainActivity extends BaseActivity implements
         Log.d(LOG_TAG, "Method: onOptionsItemSelected");
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
+            case R.id.action_refresh:
+                fragment.refreshCards();
+                return true;
             case R.id.action_settings:
                 //TODO:startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 return true;
